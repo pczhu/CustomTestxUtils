@@ -6,7 +6,7 @@ import activitydialogtest.pczhu.com.customtestxutils.domain.User;
 
 /**
  * 名称：CustomTestxUtils
- * 作用：
+ * 作用：测试用的生产数据
  * 描述：
  * 作者：pczhu
  * 创建时间： 15/11/20 下午12:12

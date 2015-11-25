@@ -1,9 +1,11 @@
-package activitydialogtest.pczhu.com.customtestxutils.activity;
+package activitydialogtest.pczhu.com.customtestxutils.activity.base;
 
 import android.app.Activity;
+import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,66 +13,60 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.google.gson.Gson;
 import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
 
 import org.xutils.common.Callback;
-import org.xutils.common.Callback.CacheCallback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
 import java.util.ArrayList;
 
 import activitydialogtest.pczhu.com.customtestxutils.R;
-import activitydialogtest.pczhu.com.customtestxutils.adapter.MainAdapter;
 import activitydialogtest.pczhu.com.customtestxutils.adapter.animationadapter.CardsAnimationAdapter;
+import activitydialogtest.pczhu.com.customtestxutils.adapter.MyBaseAdapter;
 import activitydialogtest.pczhu.com.customtestxutils.domain.FailBean;
-import activitydialogtest.pczhu.com.customtestxutils.domain.ProjectBean;
+import activitydialogtest.pczhu.com.customtestxutils.utils.ToastShow;
 import activitydialogtest.pczhu.com.customtestxutils.view.gridview.LoadingFooter;
 import activitydialogtest.pczhu.com.customtestxutils.view.gridview.OnLoadNextListener;
 import activitydialogtest.pczhu.com.customtestxutils.view.gridview.PageStaggeredGridView;
 
-
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,OnLoadNextListener{
-    SwipeRefreshLayout swipeRefreshLayout;
-    PageStaggeredGridView pageStaggeredGridView;
-    private int page = 1;
-    private ArrayList<ProjectBean.Data> userlist;
-    private MainAdapter mainAdapter;
-    private ProjectBean project;
-    private boolean isRefreshFromTop;
-    private TextView tv_error;
+/**
+ * 名称：CustomTestxUtils
+ * 作用：
+ * 描述：
+ * 作者：pczhu
+ * 创建时间： 15/11/24 下午12:06
+ * 版本：V1.0
+ * 修改历史：
+ */
+public abstract class BaseActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, OnLoadNextListener {
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private PageStaggeredGridView pageStaggeredGridView;
+    protected int page = 1;
+    protected MyBaseAdapter mainAdapter;
+    private OnActionListener onActionListener;
+    protected boolean isRefreshFromTop;
+    protected TextView tv_error;
+    protected Class<?> clz;
+    protected Object obj;
+    protected ArrayList userlist;
+    protected RequestParams requestParams;
+    //private Activity activity;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        uiinit();
-
-        System.out.println("id:" + getRootView(this).getId());
-        System.out.println("name::" + getRootView(this).getClass().getName());
+    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
     }
-    private void uiinit(){
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
-        pageStaggeredGridView = (PageStaggeredGridView) findViewById(R.id.grid_view);
-        pageStaggeredGridView.setLoadNextListener(this);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        mainAdapter = new MainAdapter(this,userlist);
 
-        AnimationAdapter animationAdapter = new CardsAnimationAdapter(mainAdapter);//添加卡片式动画
-        animationAdapter.setAbsListView(pageStaggeredGridView);
-        pageStaggeredGridView.setAdapter(animationAdapter);
-        addErrorView();
-        loadFirst();
-    }
     @Override
     public void onLoadNext() {
+
         page++;
         loadData(page);
     }
     @Override
     public void onRefresh() {
-       // pageStaggeredGridView.setState(LoadingFooter.State.Idle);
+        //pageStaggeredGridView.setState(LoadingFooter.State.Idle);
         loadFirst();
     }
     private void loadFirst(){
@@ -96,29 +92,60 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         sendToHttp(page);
     }
 
+    public interface OnActionListener{
+
+    }
+//    public void start(OnActionListener onActionListener){
+//        this.onActionListener = onActionListener;
+//    }
+    public void openListener( SwipeRefreshLayout swipeRefreshLayout,
+                              PageStaggeredGridView pageStaggeredGridView,
+                              MyBaseAdapter adapter,
+                              Class<?> clz,
+                              RequestParams requestParams,
+                              OnActionListener onActionListener){
+        this.swipeRefreshLayout = swipeRefreshLayout;
+        this.pageStaggeredGridView = pageStaggeredGridView;
+        this.mainAdapter = adapter;
+        this.clz = clz;
+        this.onActionListener = onActionListener;
+        this.requestParams = requestParams;
+        try {
+            obj = clz.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        swipeRefreshLayout.setOnRefreshListener(this);
+        pageStaggeredGridView.setLoadNextListener(this);
+        AnimationAdapter animationAdapter = new CardsAnimationAdapter(mainAdapter);//添加卡片式动画
+        animationAdapter.setAbsListView(pageStaggeredGridView);
+        pageStaggeredGridView.setAdapter(animationAdapter);
+
+        loadFirst();
+    }
+    protected abstract View getRootView();
 
     private Callback.Cancelable cancelable;
     private void sendToHttp(final int page) {
-        RequestParams requestParams = new RequestParams("http://app.renrentou.com/star/GetInvestor");
-        requestParams.addBodyParameter("page",page+"");
-        requestParams.addBodyParameter("page_num", "5");
-
-        cancelable = x.http().post(requestParams, new CacheCallback<String>() {
+        RequestParams requestParams = getRequestParams(page);
+        cancelable = x.http().post(requestParams, new Callback.CacheCallback<String>() {
             @Override
             public void onSuccess(String s) {
                 Gson gson = new Gson();
                 FailBean failBean = null;
                 try {
-                    project = gson.fromJson(s, ProjectBean.class);
+                    obj = gson.fromJson(s, clz);
                 }catch (Exception e){
                     failBean = gson.fromJson(s, FailBean.class);
                 }
 
-                if(failBean == null && project!=null){
+                if(failBean == null && obj!=null){
                     if(isRefreshFromTop){
-                        userlist = project.getData();
+                       // userlist = project.getData();
+                        userlist = getObjectList(obj);
                     }else{
-                        userlist.addAll(project.getData());
+                        //userlist.addAll(project.getData());
+                        userlist.addAll(getObjectList(obj));
                     }
                     runOnUiThread(new Runnable() {
                         @Override
@@ -137,7 +164,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                                 });
                             else
                                 pageStaggeredGridView.setState(LoadingFooter.State.Idle);
-                            showError(0,false);//有数据
+
+                            showError(0,false);
                         }
                     });
                 }else{
@@ -194,29 +222,29 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
     }
-    private View getRootView(Activity context)
-    {
-        return ((ViewGroup)context.findViewById(android.R.id.content)).getChildAt(0);
+
+    @NonNull
+    private RequestParams getRequestParams(int page) {
+        //RequestParams requestParams = new RequestParams("http://app.renrentou.com/star/GetInvestor");
+        requestParams.addBodyParameter("page",page+"");
+        requestParams.addBodyParameter("page_num", "5");
+        return requestParams;
     }
 
     /**
      * 添加错误布局
      */
-    public void addErrorView(){
+    public void addErrorView(Activity activity){
 
-        View error_view = View.inflate(this,R.layout.error_layout,null);
+        View error_view = View.inflate(this, R.layout.error_layout,null);
 
         tv_error = (TextView) error_view.findViewById(R.id.tv_error);
-        ((ViewGroup)getRootView(MainActivity.this))
+        ((ViewGroup)getRootView())
                 .addView(error_view,
                         new LinearLayout.LayoutParams(
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.MATCH_PARENT));
-
-
-
     }
-
     /**
      * 判断如何显示
      * @param statue  状态  1没有数据 2访问失败
@@ -225,19 +253,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         boolean flag = true;
         if(userlist!=null && userlist.size()!=0){
             if(statue == 1){
-                Toast.makeText(MainActivity.this, "没有找到相关数据", Toast.LENGTH_LONG).show();
+                ToastShow.showTextToast(this, "没有找到相关数据");
             }else if(statue == 2){
-                Toast.makeText(MainActivity.this, "网络请求出现问题", Toast.LENGTH_LONG).show();
+                ToastShow.showTextToast(this, "网络请求出现问题");
             }
             flag = false;
         }
-        showError(statue,flag);
+        showError(statue, flag);
 
     }
     /**
      * 显示文字
      * @param statue
      * @param flag
+     *              true 显示错误布局 false 不显示错误布局
      */
     public void showError(int statue,boolean flag){
         if(statue == 1){
@@ -248,13 +277,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             refreshView(LoadingFooter.State.ERROR);
         }
         if(flag){
-            ((ViewGroup)getRootView(MainActivity.this))
-                    .getChildAt(((ViewGroup) getRootView(MainActivity.this)).getChildCount() - 1)
+            ((ViewGroup)getRootView())
+                    .getChildAt(((ViewGroup) getRootView()).getChildCount() - 1)
                     .setVisibility(View.VISIBLE);
 
         }else{
-            ((ViewGroup)getRootView(MainActivity.this))
-                    .getChildAt(((ViewGroup) getRootView(MainActivity.this)).getChildCount() - 1)
+            ((ViewGroup)getRootView())
+                    .getChildAt(((ViewGroup) getRootView()).getChildCount() - 1)
                     .setVisibility(View.GONE);
 
         }
@@ -265,31 +294,29 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             pageStaggeredGridView.setState(error);
         else {
             swipeRefreshLayout.setRefreshing(false);
-
+            if (pageStaggeredGridView.getState() == LoadingFooter.State.TheEnd){
+                pageStaggeredGridView.setState(LoadingFooter.State.Idle);
+            }
         }
+    }
+
+    /**
+     * 拿到集合类型
+     * @param obj
+     * @return
+     */
+    public abstract ArrayList getObjectList(Object obj);
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+       // activity = null;
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        cancelable.cancel();
+        if(cancelable!=null)
+            cancelable.cancel();
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-    //    private static Handler handler = new Handler(){
-//        @Override
-//        public void handleMessage(Message msg) {
-//            switch (msg.what){
-//                case 1:
-//
-//                    break;
-//                case 2:
-//                    break;
-//            }
-//            super.handleMessage(msg);
-//        }
-//    };
 }
