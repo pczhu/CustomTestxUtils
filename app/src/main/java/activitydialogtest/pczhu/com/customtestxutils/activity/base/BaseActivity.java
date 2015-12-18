@@ -40,7 +40,7 @@ import activitydialogtest.pczhu.com.customtestxutils.view.gridview.PageStaggered
  * 版本：V1.0
  * 修改历史：
  */
-public abstract class BaseActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, OnLoadNextListener {
+public abstract class BaseActivity<T,E> extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, OnLoadNextListener {
     private SwipeRefreshLayout swipeRefreshLayout;
     private PageStaggeredGridView pageStaggeredGridView;
     protected int page = 1;
@@ -52,6 +52,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeRef
     protected Object obj;
     protected ArrayList userlist;
     protected RequestParams requestParams;
+    protected Class<?> failed;
     //private Activity activity;
     @Override
     public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
@@ -102,6 +103,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeRef
                               PageStaggeredGridView pageStaggeredGridView,
                               MyBaseAdapter adapter,
                               Class<?> clz,
+                              Class<?> failed,
                               RequestParams requestParams,
                               OnActionListener onActionListener){
         this.swipeRefreshLayout = swipeRefreshLayout;
@@ -110,6 +112,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeRef
         this.clz = clz;
         this.onActionListener = onActionListener;
         this.requestParams = requestParams;
+        this.failed = failed;
         try {
             obj = clz.newInstance();
         } catch (Exception e) {
@@ -133,6 +136,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeRef
             public void onSuccess(String s) {
                 Gson gson = new Gson();
                 FailBean failBean = null;
+
                 try {
                     obj = gson.fromJson(s, clz);
                 }catch (Exception e){

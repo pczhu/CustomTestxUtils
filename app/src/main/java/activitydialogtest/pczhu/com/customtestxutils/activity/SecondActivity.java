@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import activitydialogtest.pczhu.com.customtestxutils.R;
 import activitydialogtest.pczhu.com.customtestxutils.activity.base.BaseActivity;
 import activitydialogtest.pczhu.com.customtestxutils.adapter.OneAdapter;
+import activitydialogtest.pczhu.com.customtestxutils.domain.FailBean;
 import activitydialogtest.pczhu.com.customtestxutils.domain.ProjectBean;
 import activitydialogtest.pczhu.com.customtestxutils.view.gridview.OnLoadNextListener;
 import activitydialogtest.pczhu.com.customtestxutils.view.gridview.PageStaggeredGridView;
@@ -37,6 +38,7 @@ public class SecondActivity extends BaseActivity implements SwipeRefreshLayout.O
                 pageStaggeredGridView,
                 mainAdapter,
                 ProjectBean.class,
+                FailBean.class,
                 new RequestParams("http://app.renrentou.com/star/GetInvestor"),
                 new OnActionListener() {
 

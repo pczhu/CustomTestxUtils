@@ -41,6 +41,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private ProjectBean project;
     private boolean isRefreshFromTop;
     private TextView tv_error;
+    private Class failedclass;
+
+    public Class getFailedclass() {
+        return failedclass;
+    }
+
+    public void setFailedclass(Class failedclass) {
+        this.failedclass = failedclass;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private void sendToHttp(final int page) {
         RequestParams requestParams = new RequestParams("http://app.renrentou.com/star/GetInvestor");
         requestParams.addBodyParameter("page",page+"");
-        requestParams.addBodyParameter("page_num", "5");
+        requestParams.addBodyParameter("page_num", "20");
 
         cancelable = x.http().post(requestParams, new CacheCallback<String>() {
             @Override
@@ -154,8 +164,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     });
 
                 }
-
-
             }
             @Override
             public void onError(Throwable throwable, boolean b) {
@@ -175,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                             pageStaggeredGridView.setState(LoadingFooter.State.ERROR);
                         }
                         controlWhichShow(2);
-
                     }
                 });
 
@@ -194,8 +201,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
     }
-    private View getRootView(Activity context)
-    {
+    private View getRootView(Activity context){
         return ((ViewGroup)context.findViewById(android.R.id.content)).getChildAt(0);
     }
 
@@ -212,8 +218,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                         new LinearLayout.LayoutParams(
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.MATCH_PARENT));
-
-
 
     }
 
@@ -279,17 +283,5 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     protected void onDestroy() {
         super.onDestroy();
     }
-    //    private static Handler handler = new Handler(){
-//        @Override
-//        public void handleMessage(Message msg) {
-//            switch (msg.what){
-//                case 1:
-//
-//                    break;
-//                case 2:
-//                    break;
-//            }
-//            super.handleMessage(msg);
-//        }
-//    };
+
 }

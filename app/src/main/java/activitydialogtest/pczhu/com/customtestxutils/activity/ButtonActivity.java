@@ -29,10 +29,12 @@ public class ButtonActivity extends AppCompatActivity implements View.OnClickLis
         Button btn = (Button) findViewById(R.id.button);
         Button btn2 = (Button) findViewById(R.id.button2);
         Button btn3 = (Button) findViewById(R.id.button3);
+        Button btn4 = (Button) findViewById(R.id.button4);
         System.out.println("ButtonAcccccccccccccccc");
         btn.setOnClickListener(this);
         btn2.setOnClickListener(this);
         btn3.setOnClickListener(this);
+        btn4.setOnClickListener(this);
     }
 
     @Override
@@ -47,6 +49,8 @@ public class ButtonActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.button3:
                 start(this,ThirdActivity.class);
                 break;
+            case R.id.button4:
+                start(this,FourActivity.class);
         }
     }
     public static void start(Context context,Class clz) {

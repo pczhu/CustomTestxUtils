@@ -15,6 +15,7 @@ import activitydialogtest.pczhu.com.customtestxutils.activity.base.BaseActivity;
 import activitydialogtest.pczhu.com.customtestxutils.adapter.OneAdapter;
 import activitydialogtest.pczhu.com.customtestxutils.adapter.ThirdAdapter;
 import activitydialogtest.pczhu.com.customtestxutils.domain.BlackBean;
+import activitydialogtest.pczhu.com.customtestxutils.domain.FailBean;
 import activitydialogtest.pczhu.com.customtestxutils.domain.ProjectBean;
 import activitydialogtest.pczhu.com.customtestxutils.view.gridview.PageStaggeredGridView;
 
@@ -47,6 +48,7 @@ public class ThirdActivity extends BaseActivity{
                 pageStaggeredGridView,
                 mainAdapter,
                 BlackBean.class,
+                FailBean.class,
                 requestParams,
                 new OnActionListener() {
 

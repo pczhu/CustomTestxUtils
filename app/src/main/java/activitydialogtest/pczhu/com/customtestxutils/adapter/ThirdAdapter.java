@@ -42,19 +42,19 @@ public class ThirdAdapter extends MyBaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Holder hodler = null;
+        Holder holder = null;
         if(convertView == null){
-            hodler = new Holder();
+            holder = new Holder();
             convertView = View.inflate(mContext, R.layout.item_third,null);
-            hodler.tv = (TextView) convertView.findViewById(R.id.textView2);
-            hodler.iv = (ImageView) convertView.findViewById(R.id.imageView);
-            convertView.setTag(hodler);
+            holder.tv = (TextView) convertView.findViewById(R.id.textView2);
+            holder.iv = (ImageView) convertView.findViewById(R.id.imageView);
+            convertView.setTag(holder);
         }else{
-            hodler = (Holder) convertView.getTag();
+            holder = (Holder) convertView.getTag();
         }
         BlackBean.Data bean = (BlackBean.Data) userList.get(position);
-        hodler.tv.setText(bean.getPid()+":"+bean.getProject_name());
-        x.image().bind(hodler.iv, bean.getCover(), ImageOptions.DEFAULT);
+        holder.tv.setText(bean.getPid()+":"+bean.getProject_name());
+        x.image().bind(holder.iv, bean.getCover(), ImageOptions.DEFAULT);
 
 
         return convertView;

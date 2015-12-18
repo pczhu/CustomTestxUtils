@@ -47,19 +47,19 @@ public class OneAdapter extends MyBaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Holder hodler = null;
+        Holder holder = null;
         if(convertView == null){
-            hodler = new Holder();
+            holder = new Holder();
             convertView = View.inflate(mContext, R.layout.item_layout,null);
-            hodler.tv = (TextView) convertView.findViewById(R.id.tv_caption);
-            hodler.iv = (ImageView) convertView.findViewById(R.id.iv_normal);
-            convertView.setTag(hodler);
+            holder.tv = (TextView) convertView.findViewById(R.id.tv_caption);
+            holder.iv = (ImageView) convertView.findViewById(R.id.iv_normal);
+            convertView.setTag(holder);
         }else{
-            hodler = (Holder) convertView.getTag();
+            holder = (Holder) convertView.getTag();
         }
         ProjectBean.Data bean = (ProjectBean.Data) userList.get(position);
-        hodler.tv.setText(bean.getId()+":"+bean.getName());
-        x.image().bind(hodler.iv, bean.getFace(), ImageOptions.DEFAULT);
+        holder.tv.setText(bean.getId()+":"+bean.getName());
+        x.image().bind(holder.iv, bean.getFace(), ImageOptions.DEFAULT);
 
 
         return convertView;

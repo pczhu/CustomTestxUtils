@@ -12,9 +12,13 @@ package activitydialogtest.pczhu.com.customtestxutils.view.gridview;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.AbsListView;
+import android.widget.Toast;
 
 import com.etsy.android.grid.StaggeredGridView;
+
+import activitydialogtest.pczhu.com.customtestxutils.activity.MainActivity;
 
 /**
  * 自定义不规则GridView
@@ -24,7 +28,7 @@ public class PageStaggeredGridView extends StaggeredGridView implements AbsListV
     private LoadingFooter mLoadingFooter;
 
     private OnLoadNextListener mLoadNextListener;
-
+    private int stateScroll = SCROLL_STATE_IDLE;
     public PageStaggeredGridView(Context context) {
         super(context);
         init();
@@ -44,6 +48,7 @@ public class PageStaggeredGridView extends StaggeredGridView implements AbsListV
         mLoadingFooter = new LoadingFooter(getContext());
         addFooterView(mLoadingFooter.getView());
         setOnScrollListener(this);
+
     }
 
     public void setLoadNextListener(OnLoadNextListener listener) {
@@ -52,7 +57,7 @@ public class PageStaggeredGridView extends StaggeredGridView implements AbsListV
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+        this.stateScroll = scrollState;
     }
     /**
      * firstVisibleItem 表示在当前屏幕显示的第一个listItem在整个listView里面的位置（下标从0开始）
@@ -67,13 +72,44 @@ public class PageStaggeredGridView extends StaggeredGridView implements AbsListV
                 || mLoadingFooter.getState() == LoadingFooter.State.TheEnd) {
             return;
         }
+        if(stateScroll == SCROLL_STATE_IDLE){
+            return;
+        }
         if (firstVisibleItem + visibleItemCount >= totalItemCount
                 && totalItemCount != 0
                 && totalItemCount != getHeaderViewsCount() + getFooterViewsCount()
-                && mLoadNextListener != null) {
+                && mLoadNextListener != null
+                ) {
             mLoadingFooter.setState(LoadingFooter.State.Loading);
             mLoadNextListener.onLoadNext();
         }
+
+    }
+
+    float x1;
+    float y1;
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //继承了Activity的onTouchEvent方法，直接监听点击事件
+
+        float x2;
+        float y2;
+        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+            //当手指按下的时候
+            x1 = event.getX();
+            y1 = event.getY();
+        }
+        if(event.getAction() == MotionEvent.ACTION_UP) {
+            //当手指离开的时候
+            x2 = event.getX();
+            y2 = event.getY();
+            if(y1 - y2 > 50) {
+                Toast.makeText(getContext(), "向上滑", Toast.LENGTH_SHORT).show();
+                mLoadingFooter.setState(LoadingFooter.State.Loading);
+                mLoadNextListener.onLoadNext();
+            }
+        }
+        return super.onTouchEvent(event);
     }
 
     public void setState(LoadingFooter.State status) {
