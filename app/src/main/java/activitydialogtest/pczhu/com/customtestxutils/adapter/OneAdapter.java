@@ -29,7 +29,6 @@ public class OneAdapter extends MyBaseAdapter {
         super(context, userList);
     }
 
-
     @Override
     public int getCount() {
         return userList!= null?userList.size() : 0;

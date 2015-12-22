@@ -14,21 +14,34 @@ import java.util.ArrayList;
  * 版本：V1.0
  * 修改历史：
  */
-public abstract class MyBaseAdapter extends BaseAdapter {
-    protected ArrayList<?> userList;
+public abstract class MyBaseAdapter<T> extends BaseAdapter {
+    protected ArrayList<T> userList;
     protected Context mContext;
-    public MyBaseAdapter(Context context, ArrayList<?> userList) {
+    public MyBaseAdapter(Context context, ArrayList<T> userList) {
         this.userList = userList;
         this.mContext = context;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
     }
     @Override
     public int getCount() {
         return userList!= null?userList.size() : 0;
     }
 
-    public void notifyDataSetChanged(ArrayList<?> userList) {
+    public void notifyDataSetChanged(ArrayList<T> userList) {
         this.userList = userList;
         super.notifyDataSetChanged();
     }
 
+    public T getOneDataCell(int position){
+        return userList.get(position);
+    }
 }

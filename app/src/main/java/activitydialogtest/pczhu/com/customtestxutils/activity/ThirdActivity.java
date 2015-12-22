@@ -48,7 +48,6 @@ public class ThirdActivity extends BaseActivity{
                 pageStaggeredGridView,
                 mainAdapter,
                 BlackBean.class,
-                FailBean.class,
                 requestParams,
                 new OnActionListener() {
 

@@ -40,7 +40,7 @@ import activitydialogtest.pczhu.com.customtestxutils.view.gridview.PageStaggered
  * 版本：V1.0
  * 修改历史：
  */
-public abstract class BaseActivity<T,E> extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, OnLoadNextListener {
+public abstract class BaseActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, OnLoadNextListener {
     private SwipeRefreshLayout swipeRefreshLayout;
     private PageStaggeredGridView pageStaggeredGridView;
     protected int page = 1;
@@ -52,7 +52,7 @@ public abstract class BaseActivity<T,E> extends AppCompatActivity implements Swi
     protected Object obj;
     protected ArrayList userlist;
     protected RequestParams requestParams;
-    protected Class<?> failed;
+
     //private Activity activity;
     @Override
     public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
@@ -103,7 +103,7 @@ public abstract class BaseActivity<T,E> extends AppCompatActivity implements Swi
                               PageStaggeredGridView pageStaggeredGridView,
                               MyBaseAdapter adapter,
                               Class<?> clz,
-                              Class<?> failed,
+
                               RequestParams requestParams,
                               OnActionListener onActionListener){
         this.swipeRefreshLayout = swipeRefreshLayout;
@@ -112,7 +112,7 @@ public abstract class BaseActivity<T,E> extends AppCompatActivity implements Swi
         this.clz = clz;
         this.onActionListener = onActionListener;
         this.requestParams = requestParams;
-        this.failed = failed;
+
         try {
             obj = clz.newInstance();
         } catch (Exception e) {
@@ -133,61 +133,14 @@ public abstract class BaseActivity<T,E> extends AppCompatActivity implements Swi
         RequestParams requestParams = getRequestParams(page);
         cancelable = x.http().post(requestParams, new Callback.CacheCallback<String>() {
             @Override
-            public void onSuccess(String s) {
-                Gson gson = new Gson();
-                FailBean failBean = null;
-
-                try {
-                    obj = gson.fromJson(s, clz);
-                }catch (Exception e){
-                    failBean = gson.fromJson(s, FailBean.class);
-                }
-
-                if(failBean == null && obj!=null){
-                    if(isRefreshFromTop){
-                       // userlist = project.getData();
-                        userlist = getObjectList(obj);
-                    }else{
-                        //userlist.addAll(project.getData());
-                        userlist.addAll(getObjectList(obj));
-                    }
+            public void onSuccess(final String s) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mainAdapter.notifyDataSetChanged(userlist);
-                            if(isRefreshFromTop)
-                                swipeRefreshLayout.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        swipeRefreshLayout.setRefreshing(false);
-                                        Log.d("UI", "关闭");
-                                        if (pageStaggeredGridView.getState() == LoadingFooter.State.TheEnd){
-                                            pageStaggeredGridView.setState(LoadingFooter.State.Idle);
-                                        }
-                                    }
-                                });
-                            else
-                                pageStaggeredGridView.setState(LoadingFooter.State.Idle);
-
-                            showError(0,false);
+                            Log.i("JSON数据","请求");
+                            getData(s);
                         }
                     });
-                }else{
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(isRefreshFromTop){
-                                swipeRefreshLayout.setRefreshing(false);
-                            }else {
-                                pageStaggeredGridView.setState(LoadingFooter.State.Idle);
-                            }
-                            controlWhichShow(1);
-                        }
-                    });
-
-                }
-
-
             }
             @Override
             public void onError(Throwable throwable, boolean b) {
@@ -222,11 +175,66 @@ public abstract class BaseActivity<T,E> extends AppCompatActivity implements Swi
             }
             @Override
             public boolean onCache(String s) {
-                return false;
+                Log.i("缓存数据","进入缓存");
+                getData(s);
+                return true;
             }
         });
     }
+    private void getData(String s){
 
+        Gson gson = new Gson();
+        FailBean failBean = null;
+
+        try {
+            obj = gson.fromJson(s, clz);
+        }catch (Exception e){
+            failBean =gson.fromJson(s, FailBean.class);
+        }
+
+        if(failBean == null && obj!=null){
+            if(isRefreshFromTop){
+                // userlist = project.getData();
+                userlist = getObjectList(obj);
+            }else{
+                //userlist.addAll(project.getData());
+                userlist.addAll(getObjectList(obj));
+            }
+            mainAdapter.notifyDataSetChanged(userlist);
+            if(isRefreshFromTop)
+                swipeRefreshLayout.post(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                swipeRefreshLayout.setRefreshing(false);
+                                Log.d("UI", "关闭");
+                                if (pageStaggeredGridView.getState() == LoadingFooter.State.TheEnd){
+                                    pageStaggeredGridView.setState(LoadingFooter.State.Idle);
+                                }}
+                        });
+            else
+                pageStaggeredGridView.setState(LoadingFooter.State.Idle);
+
+            showError(0,false);//如果已经有错误布局 。删除
+
+        }else{
+            if(failBean.getStatus().equals("-103")){
+                if(isRefreshFromTop){
+                    swipeRefreshLayout.setRefreshing(false);
+                }else {
+                    pageStaggeredGridView.setState(LoadingFooter.State.Idle);
+                }
+                controlWhichShow(1);
+            }else{
+                if(isRefreshFromTop){
+                    swipeRefreshLayout.setRefreshing(false);
+                }else {
+                    pageStaggeredGridView.setState(LoadingFooter.State.ERROR);
+                }
+                controlWhichShow(2);
+            }
+        }
+    }
     @NonNull
     private RequestParams getRequestParams(int page) {
         //RequestParams requestParams = new RequestParams("http://app.renrentou.com/star/GetInvestor");

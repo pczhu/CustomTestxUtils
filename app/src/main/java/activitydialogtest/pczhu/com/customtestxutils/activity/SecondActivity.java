@@ -38,7 +38,6 @@ public class SecondActivity extends BaseActivity implements SwipeRefreshLayout.O
                 pageStaggeredGridView,
                 mainAdapter,
                 ProjectBean.class,
-                FailBean.class,
                 new RequestParams("http://app.renrentou.com/star/GetInvestor"),
                 new OnActionListener() {
 

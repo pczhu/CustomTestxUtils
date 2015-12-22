@@ -1,6 +1,7 @@
 package activitydialogtest.pczhu.com.customtestxutils.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * 名称：${FILE_NAME}
@@ -12,44 +13,60 @@ import java.io.Serializable;
  * 修改历史：
  */
 public class Results implements Serializable{
-    private String resultCode;
-    private String reason;
-    private String error_code;
-    private MyData result;
-    public class MyData{
+    private String statue;
+    private String msg;
+    private ArrayList<Data> data;
+    public class Data {
+        private String pid;//项目id
+        private String img_app;
         private String name;
-        private String pinyin;
+
+        public String getPid() {
+            return pid;
+        }
+
+        public void setPid(String pid) {
+            this.pid = pid;
+        }
+
+        public String getImg_app() {
+            return img_app;
+        }
+
+        public void setImg_app(String img_app) {
+            this.img_app = img_app;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
-    public String getResultCode() {
-        return resultCode;
+    public String getStatue() {
+        return statue;
     }
 
-    public void setResultCode(String resultCode) {
-        this.resultCode = resultCode;
+    public void setStatue(String statue) {
+        this.statue = statue;
     }
 
-    public String getReason() {
-        return reason;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
-    public String getError_code() {
-        return error_code;
+    public ArrayList<Data> getData() {
+        return data;
     }
 
-    public void setError_code(String error_code) {
-        this.error_code = error_code;
-    }
-
-    public MyData getResult() {
-        return result;
-    }
-
-    public void setResult(MyData result) {
-        this.result = result;
+    public void setData(ArrayList<Data> data) {
+        this.data = data;
     }
 }

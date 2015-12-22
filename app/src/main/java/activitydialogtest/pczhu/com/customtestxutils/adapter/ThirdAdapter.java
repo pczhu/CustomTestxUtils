@@ -30,15 +30,6 @@ public class ThirdAdapter extends MyBaseAdapter{
     }
 
 
-    @Override
-    public Object getItem(int position) {
-        return null;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return 0;
-    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {

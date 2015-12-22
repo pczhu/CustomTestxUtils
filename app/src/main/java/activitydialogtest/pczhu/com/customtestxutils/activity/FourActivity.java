@@ -5,10 +5,15 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.ViewGroup;
 
+
+import org.xutils.http.RequestParams;
+
 import java.util.ArrayList;
 
 import activitydialogtest.pczhu.com.customtestxutils.R;
 import activitydialogtest.pczhu.com.customtestxutils.activity.base.BaseActivity;
+import activitydialogtest.pczhu.com.customtestxutils.adapter.animationadapter.FourAdapter;
+import activitydialogtest.pczhu.com.customtestxutils.domain.Results;
 import activitydialogtest.pczhu.com.customtestxutils.view.gridview.PageStaggeredGridView;
 
 /**
@@ -23,12 +28,30 @@ import activitydialogtest.pczhu.com.customtestxutils.view.gridview.PageStaggered
 public class FourActivity extends BaseActivity{
     private SwipeRefreshLayout swipeRefreshLayout;
     private PageStaggeredGridView pageStaggeredGridView;
+    private FourAdapter fourAdapter;
+    private ArrayList<Results.Data> userlist;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.third);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         pageStaggeredGridView = (PageStaggeredGridView) findViewById(R.id.grid_view);
+        fourAdapter = new FourAdapter(this,userlist);
+        RequestParams requestParams = new RequestParams("http://app.dev2.renrentou.com/project/getProjectList");
+        requestParams.addBodyParameter("page_num","5");
+        requestParams.setCacheMaxAge(60*1000);
+        requestParams.setCacheDirName("/xutils");
+        //requestParams.
+        openListener(swipeRefreshLayout,
+                pageStaggeredGridView,
+                fourAdapter,
+                Results.class,
+                requestParams,
+                new OnActionListener() {
+
+                }
+        );
+        addErrorView(this);
     }
 
     @Override
@@ -38,6 +61,6 @@ public class FourActivity extends BaseActivity{
 
     @Override
     public ArrayList getObjectList(Object obj) {
-        return null;
+        return ((Results)obj).getData();
     }
 }

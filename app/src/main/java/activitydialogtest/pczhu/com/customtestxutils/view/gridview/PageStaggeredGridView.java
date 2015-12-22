@@ -10,15 +10,20 @@ package activitydialogtest.pczhu.com.customtestxutils.view.gridview;
  * 修改历史：
  */
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.widget.AbsListView;
 import android.widget.Toast;
 
 import com.etsy.android.grid.StaggeredGridView;
 
+import activitydialogtest.pczhu.com.customtestxutils.R;
 import activitydialogtest.pczhu.com.customtestxutils.activity.MainActivity;
+import activitydialogtest.pczhu.com.customtestxutils.utils.SolidToast;
 
 /**
  * 自定义不规则GridView
@@ -68,8 +73,12 @@ public class PageStaggeredGridView extends StaggeredGridView implements AbsListV
      */
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (mLoadingFooter.getState() == LoadingFooter.State.Loading
-                || mLoadingFooter.getState() == LoadingFooter.State.TheEnd) {
+        if (mLoadingFooter.getState() == LoadingFooter.State.Loading) {
+            //SolidToast.make((Activity)getContext(), "正在刷新中，请稍后", Gravity.BOTTOM).setBackgroundColorId(R.color.colorPrimaryDark).show();
+            return;
+        }
+        if(mLoadingFooter.getState() == LoadingFooter.State.TheEnd){
+            //SolidToast.make((Activity)getContext(), "没有更多数据", Gravity.BOTTOM).setBackgroundColorId(R.color.colorPrimaryDark).show();
             return;
         }
         if(stateScroll == SCROLL_STATE_IDLE){
@@ -104,9 +113,15 @@ public class PageStaggeredGridView extends StaggeredGridView implements AbsListV
             x2 = event.getX();
             y2 = event.getY();
             if(y1 - y2 > 50) {
-                Toast.makeText(getContext(), "向上滑", Toast.LENGTH_SHORT).show();
-                mLoadingFooter.setState(LoadingFooter.State.Loading);
-                mLoadNextListener.onLoadNext();
+                if(mLoadingFooter.getState() == LoadingFooter.State.TheEnd){
+                    SolidToast.make((Activity)getContext(), "没有更多数据", Gravity.BOTTOM).setBackgroundColorId(R.color.colorPrimaryDark).show();
+                    return super.onTouchEvent(event);
+                }
+                if(stateScroll== SCROLL_STATE_IDLE) {
+                    Toast.makeText(getContext(), "向上滑", Toast.LENGTH_SHORT).show();
+                    mLoadingFooter.setState(LoadingFooter.State.Loading);
+                    mLoadNextListener.onLoadNext();
+                }
             }
         }
         return super.onTouchEvent(event);
